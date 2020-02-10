@@ -2,7 +2,7 @@
 const fs = require('fs');
 const cli = require('commander');
 const clui = require('clui');
-const clear = require('clear');
+const clear = require('./utils/clear');
 const mongoose = require('mongoose');
 const uid = require('uuid/v1');
 const log = require('./utils/log');
@@ -26,7 +26,7 @@ cli
 	.command('clear', 'purge the export database')
 	.command('backup', 'creates a copy of the data')
 	.command('transfer', 'creates the export database and transfer the data from mongo to dynamo')
-	.option('-m, --mongo <mongo-url>', 'pass a mongo connection string', 'mongodb://localhost:27017/khatu')
+	.option('-m, --mongo <mongo-url>', 'pass a mongo connection string', 'mongodb://localhost:27017/dynago')
 	.option('-r, --region <region>', 'set a specific region for dynamodb', 'us-east-1')
 	.option('-e, --endpoint <url>', 'set a specific endpoint for dynamodb', `https://dynamodb.${cli.region || 'us-east-1'}.amazonaws.com`)
 	.option('-p, --prefix <prefix>', 'add a prefix to dynamodb tables', '')
