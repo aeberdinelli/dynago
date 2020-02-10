@@ -1,0 +1,25 @@
+{
+  "name": "dynago",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "dynago": "./index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.614.0",
+    "chalk": "^3.0.0",
+    "clear": "^0.1.0",
+    "clui": "^0.3.6",
+    "commander": "^4.1.1",
+    "inquirer": "^7.0.4",
+    "mongoose": "^5.8.11",
+    "uuid": "^3.4.0"
+  }
+}
