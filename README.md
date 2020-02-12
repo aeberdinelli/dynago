@@ -18,9 +18,6 @@ dynago transfer --endpoint http://localhost --region us-east-1
 # Transfer data from custom database to local dynamo and custom region
 dynago transfer --mongo mongodb://localhost:27017/custom-database --endpoint http://localhost:8000 --region us-west-2
 
-# Update relationships, changing the old object ids with the new dynamo ids
-dynago relate
-
 # Clear all temporal data
 dynago clear
 ```

@@ -1,6 +1,6 @@
 {
   "name": "dynago",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A CLI tool to painless transfering data from MongoDB to DynamoDB.",
   "main": "index.js",
   "scripts": {
