@@ -28,10 +28,6 @@ function processObject(exportedItems, item) {
 
 	else if (typeof item === 'object') {
 		for (const [column, value] of Object.entries(item)) {
-			if (column === 'id') {
-				//console.log(value + ' ===> ' + processObject(exportedItems, value));
-			}
-
 			item[column] = processObject(exportedItems, value);
 		}
 	}
@@ -145,8 +141,7 @@ module.exports = async function(cli, cmd) {
 	const processTime = perf.stop();
 
 	spinner.stop();
-	log('ok', 'Transfer completed\n');
-	log('info', `Processing time: ${ Math.round(processTime.time / 1024, 2) }`);
+	log('ok', `Transfer completed in ${ Math.round(processTime.time / 1024, 2) }s`);
 
 	process.exit(0);
 }
