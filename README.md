@@ -1,6 +1,9 @@
 # Dynago
 A CLI tool to easily copy MongoDB database to DynamoDB format, generating new ids and keeping relationships.
 
+## Install
+Just run: `npm install -g dynago`
+
 ## Usage
 ![help](https://raw.githubusercontent.com/aeberdinelli/dynago/master/docs/help.png)
 
