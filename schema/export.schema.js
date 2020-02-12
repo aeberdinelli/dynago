@@ -9,6 +9,10 @@ const SchemaExport = new mongoose.Schema({
 		type: Object,
 		required: true
 	},
+	'dynamoBody': {
+		type: Object,
+		required: true
+	},
 	'originalId': {
 		type: String,
 		required: true
@@ -19,4 +23,9 @@ const SchemaExport = new mongoose.Schema({
 	}
 });
 
-module.exports = mongoose.model('Export', SchemaExport);
+/**
+ * Declares the export collection with a custom name
+ */
+module.exports = function(name) {
+	return mongoose.model(name[0].toUpperCase() + name.slice(1), SchemaExport);
+}

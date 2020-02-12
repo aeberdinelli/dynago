@@ -3,13 +3,14 @@ const inquirer = require('inquirer');
 const connect = require('../utils/connect');
 const log = require('../utils/log');
 const sleep = require('../utils/sleep');
-const Export = require('../schema/export.schema.js');
 
 module.exports = async function(cli, cmd) {
 	await connect(cli.mongo);
+	
+	const Export = require('../schema/export.schema.js')(cli.name);
 
 	const answer = await inquirer.prompt({
-		message: 'Are you sure you want to clean up the export collection?',
+		message: 'Are you sure you want to clean up the export collection?\nThis action cannot be undone',
 		type: 'confirm',
 		name: 'confirm',
 		default: false

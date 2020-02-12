@@ -7,14 +7,43 @@ const connect = require('../utils/connect');
 const log = require('../utils/log');
 const sleep = require('../utils/sleep');
 const objectId2string = require('../utils/objectId2string');
-
-const Export = require('../schema/export.schema.js');
 const Dynamo = require('../utils/dynamo');
+
+const perf = require('execution-time')();
+
+function processObject(exportedItems, item) {
+	if (item === null) {
+		return item;
+	}
+
+	else if (Array.isArray(item)) {
+		item = item.map(val => processObject(exportedItems, val));
+	}
+
+	else if (typeof item === 'string' && mongoose.Types.ObjectId.isValid(item)) {
+		const exported = exportedItems.find(exported => exported.originalId == item);
+
+		return (!!exported) ? exported.newId : item;
+	}
+
+	else if (typeof item === 'object') {
+		for (const [column, value] of Object.entries(item)) {
+			if (column === 'id') {
+				//console.log(value + ' ===> ' + processObject(exportedItems, value));
+			}
+
+			item[column] = processObject(exportedItems, value);
+		}
+	}
+
+	return item;
+}
 
 module.exports = async function(cli, cmd) {
 	log('info', `AWS Region: ${cli.region}`);
 	log('info', `AWS Endpoint: ${cli.endpoint}`);
 
+	const Export = require('../schema/export.schema.js')(cli.name);
 	const dynamo = new Dynamo({ endpoint: cli.endpoint, region: cli.region });
 
 	await connect(cli.mongo);
@@ -24,7 +53,7 @@ module.exports = async function(cli, cmd) {
 	spinner.start();
 
 	const result = await mongoose.connection.db.listCollections();
-	const collections = (await result.toArray()).map(collection => collection.name);
+	const collections = (await result.toArray()).map(collection => collection.name).filter(name => name !== cli.name && name !== `${cli.name}s`);
 
 	spinner.stop();
 
@@ -38,6 +67,8 @@ module.exports = async function(cli, cmd) {
 	const selected = answer.collections;
 
 	clear();
+
+	perf.start();
 
 	for (var option of selected) {
 		spinner.message(`Analyzing collection ${option}...`);
@@ -61,16 +92,6 @@ module.exports = async function(cli, cmd) {
 
 			const uid = uuid();
 
-			const backup = new Export({
-				'collectionName': option,
-				'documentBody': documents[i],
-				'originalId': documents[i]._id,
-				'newId': uid
-			});
-
-			await backup.save();
-			await sleep(1);
-
 			let body = { ...documents[i].toJSON() };
 
 			// Replace with new id
@@ -86,27 +107,46 @@ module.exports = async function(cli, cmd) {
 
 			for (var [key, val] of Object.entries(body)) {
 				// Dynamo does not support emptry strings
-				if (typeof val === 'string' && !val) {
-					body[key] = null;
-				}
-
-				else {
-					body[key] = objectId2string(val);
-				}
+				body[key] = (typeof val === 'string' && !val) ? null : objectId2string(val);
 			}
 
-			try {
-				await dynamo.insertDocument(`${cli.prefix || ''}${option}`, body);
-				await sleep(1);
-			}
-			catch (e) {
-				log('err', `Could not insert document`);
-			}
+			const backup = new Export({
+				'collectionName': option,
+				'documentBody': documents[i],
+				'dynamoBody': body,
+				'originalId': documents[i]._id,
+				'newId': uid
+			});
+
+			await backup.save();
+			await sleep(1);
 		}
 	}
 
+	clear();
+	spinner.message('Updating relationships... ');
+
+	const all = (await Export.find().exec()).map(result => result.toJSON());
+
+	for (var i = 0;i < all.length;i++) {
+		spinner.message(`Updating relationships... (${i + 1}/${all.length})`);
+
+		var item = processObject(all, all[i].dynamoBody); 
+
+		try {
+			await dynamo.insertDocument(`${cli.prefix || ''}${all[i].collectionName}`, item);
+			await sleep(1);
+		}
+		catch (e) {
+			log('err', `Could not insert document`);
+		}
+	}
+
+	const processTime = perf.stop();
+
 	spinner.stop();
-	log('ok', 'Backup completed\n');
+	log('ok', 'Transfer completed\n');
+	log('info', `Processing time: ${ Math.round(processTime.time / 1024, 2) }`);
 
 	process.exit(0);
 }

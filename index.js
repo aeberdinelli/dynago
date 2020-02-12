@@ -26,11 +26,12 @@ cli
 	.command('clear', 'purge the export database')
 	.command('backup', 'creates a copy of the data')
 	.command('transfer', 'creates the export database and transfer the data from mongo to dynamo')
+	.command('relate', 'updates the old id with the new ones to keep relationships')
 	.option('-m, --mongo <mongo-url>', 'pass a mongo connection string', 'mongodb://localhost:27017/dynago')
 	.option('-r, --region <region>', 'set a specific region for dynamodb', 'us-east-1')
 	.option('-e, --endpoint <url>', 'set a specific endpoint for dynamodb', `https://dynamodb.${cli.region || 'us-east-1'}.amazonaws.com`)
 	.option('-p, --prefix <prefix>', 'add a prefix to dynamodb tables', '')
-	//.option('-t, --name <collection>', 'change the default export collection name', 'export')
+	.option('-t, --name <collection>', 'change the export collection name', 'export')
 	.action(async cmd => {
 		const command = cmd.args.pop().toLowerCase().trim();
 

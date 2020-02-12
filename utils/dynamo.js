@@ -40,7 +40,10 @@ module.exports = class Dynamo {
 
 	async insertDocument(TableName, Item) {
 		return new Promise((resolve, reject) => {
-			this.client.put({ TableName, Item }, (err, data) => {
+			this.client.put({ 
+				TableName, 
+				Item 
+			}, (err, data) => {
 				if (err) {
 					return reject(err);
 				}
@@ -48,5 +51,13 @@ module.exports = class Dynamo {
 				return resolve(data);
 			})
 		});
+	}
+
+	$db() {
+		return this.dynamo;
+	}
+
+	$client() {
+		return this.client;
 	}
 }
