@@ -103,7 +103,7 @@ module.exports = async function(cli, cmd) {
 
 			for (var [key, val] of Object.entries(body)) {
 				// Dynamo does not support emptry strings
-				body[key] = (typeof val === 'string' && !val) ? null : objectId2string(val);
+				body[key] = (typeof val === 'string' && !val) ? undefined : objectId2string(val);
 			}
 
 			const backup = new Export({

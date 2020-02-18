@@ -10,7 +10,7 @@ module.exports = async function(cli, cmd) {
 	const Export = require('../schema/export.schema.js')(cli.name);
 
 	const answer = await inquirer.prompt({
-		message: 'Are you sure you want to clean up the export collection?\nThis action cannot be undone',
+		message: 'Are you sure you want to clean up the export collection? This action cannot be undone',
 		type: 'confirm',
 		name: 'confirm',
 		default: false
